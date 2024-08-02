@@ -304,13 +304,6 @@
             align-items: center;
             justify-content: space-between;
         }
-
-        #reservationTime {
-            padding: 5px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
     </style>
 </head>
 
@@ -459,7 +452,14 @@
         <div id="cartItems"></div>
         <div class="reservation-time-container">
             <label for="reservationTime">預訂取餐時間：</label>
-            <input id="reservationTime" type="time" step="300">
+            <div id="timePickerContainer">
+                <select id="hourPicker"></select> :
+                <select id="minutePicker"></select>
+                <select id="ampmPicker">
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                </select>
+            </div>            
         </div>
         <div class="total-amount">
             <p id="totalAmount">總金額：$0</p>
@@ -540,7 +540,7 @@
         });
 
         floatingCart.addEventListener('click', function() {
-            setInitialReservationTime();
+            populateTimePickers();
             cartContent.style.display = 'block';
             cartItems.innerHTML = '';
             cart.forEach(item => {
@@ -575,22 +575,45 @@
             }
         }
 
-        function roundToNearestFive(date) {
-            const minutes = Math.ceil(date.getMinutes() / 5) * 5;
-            date.setMinutes(minutes);
-            date.setSeconds(0);
-            return date;
-        }
+        function populateTimePickers() {
+            const hourPicker = document.getElementById('hourPicker');
+            const minutePicker = document.getElementById('minutePicker');
+            const ampmPicker = document.getElementById('ampmPicker');
 
-        function setInitialReservationTime() {
+            // 清空現有選項
+            hourPicker.innerHTML = '';
+            minutePicker.innerHTML = '';
+
+            // 填充小時選項
+            for (let i = 1; i <= 12; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.text = i;
+                hourPicker.add(option);
+            }
+
+            // 填充分鐘選項（每5分鐘一個選項）
+            for (let i = 0; i < 60; i += 5) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.text = String(i).padStart(2, '0');
+                minutePicker.add(option);
+            }
+
+            // 設定當前時間
             const now = new Date();
-            const roundedTime = roundToNearestFive(new Date(now.getTime()));
+            let currentHour = now.getHours();
+            const currentMinute = Math.ceil(now.getMinutes() / 5) * 5;
+            let ampm = 'AM';
 
-            const hours = String(roundedTime.getHours()).padStart(2, '0');
-            const minutes = String(roundedTime.getMinutes()).padStart(2, '0');
-            const timeString = `${hours}:${minutes}`;
+            if (currentHour >= 12) {
+                ampm = 'PM';
+                if (currentHour > 12) currentHour -= 12;
+            }
 
-            document.getElementById('reservationTime').value = timeString;
+            hourPicker.value = currentHour;
+            minutePicker.value = currentMinute < 60 ? currentMinute : 0;
+            ampmPicker.value = ampm;
         }
 
     </script>
