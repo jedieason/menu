@@ -279,6 +279,9 @@
             font-size: 14px;
             color: #777;
             margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .total-amount {
@@ -332,6 +335,31 @@
             justify-content: center;
             align-items: center;
         }
+
+        .option-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .option-button {
+            background-color: #fff;
+            color: black;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+            flex-grow: 1;
+            margin: 0 5px;
+            text-align: center;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .option-button.selected {
+            background-color: #8B0000;
+            color: white;
+        }
     </style>
 </head>
 
@@ -349,6 +377,10 @@
             <h2 id="itemTitle"></h2>
             <img id="itemImage" src="" alt="餐點圖片" style="width: 100%; height: auto; margin-bottom: 15px;">
             <p id="itemDescription"></p>
+            <div class="option-buttons">
+                <button class="option-button" id="sizeIncrease">加大</button>
+                <button class="option-button" id="spicyIncrease">加辣</button>
+            </div>
             <div class="price-quantity-container">
                 <p id="itemPrice" style="font-size: 16px; color: #555;"></p>
                 <div class="quantity-container">
@@ -544,6 +576,21 @@
             }
         });
 
+        let selectedOptions = {
+            size: false,
+            spicy: false
+        };
+
+        document.getElementById('sizeIncrease').addEventListener('click', function() {
+            selectedOptions.size = !selectedOptions.size;
+            this.classList.toggle('selected');
+        });
+
+        document.getElementById('spicyIncrease').addEventListener('click', function() {
+            selectedOptions.spicy = !selectedOptions.spicy;
+            this.classList.toggle('selected');
+        });
+
         increaseQuantity.addEventListener('click', function() {
             let currentQuantity = parseInt(quantityInput.value);
             quantityInput.value = currentQuantity + 1;
@@ -555,12 +602,25 @@
             const itemPriceText = itemPrice.innerText.replace('價格：$', '');
             const quantity = parseInt(quantityInput.value);
             const itemTotal = quantity * parseInt(itemPriceText);
+            
+            let optionsText = '';
+            if (selectedOptions.size) optionsText += '加大';
+            if (selectedOptions.spicy) optionsText += optionsText ? '、加辣' : '加辣';
 
-            cart.push({ name: itemName, price: parseInt(itemPriceText), quantity: quantity, image: itemImageSrc });
+            cart.push({ 
+                name: itemName, 
+                price: parseInt(itemPriceText), 
+                quantity: quantity, 
+                options: optionsText, 
+                image: itemImageSrc 
+            });
             total += itemTotal;
             cartCount.innerText = parseInt(cartCount.innerText) + quantity;
 
             modal.style.display = "none";
+            selectedOptions = { size: false, spicy: false };
+            document.getElementById('sizeIncrease').classList.remove('selected');
+            document.getElementById('spicyIncrease').classList.remove('selected');
         });
 
         floatingCart.addEventListener('click', function() {
@@ -573,7 +633,7 @@
                         <img src="${item.image}" alt="${item.name}">
                         <div class="cart-item-details">
                             <span class="cart-item-name">${item.name}</span>
-                            <span class="cart-item-quantity">數量：${item.quantity}</span>
+                            <span class="cart-item-quantity">${item.options}，數量：${item.quantity}</span>
                         </div>
                         <span class="cart-item-price">$${item.price * item.quantity}</span>
                     </div>`;
