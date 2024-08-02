@@ -297,6 +297,20 @@
             cursor: pointer;
             font-size: 16px;
         }
+
+        .reservation-time-container {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #reservationTime {
+            padding: 5px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
     </style>
 </head>
 
@@ -443,6 +457,10 @@
         <span class="close-cart">&times;</span>
         <h3>購物車內容</h3>
         <div id="cartItems"></div>
+        <div class="reservation-time-container">
+            <label for="reservationTime">預訂取餐時間：</label>
+            <input id="reservationTime" type="time" step="300">
+        </div>
         <div class="total-amount">
             <p id="totalAmount">總金額：$0</p>
             <button class="submit-order-button">送出訂單</button>
@@ -522,6 +540,7 @@
         });
 
         floatingCart.addEventListener('click', function() {
+            setInitialReservationTime();
             cartContent.style.display = 'block';
             cartItems.innerHTML = '';
             cart.forEach(item => {
@@ -555,6 +574,25 @@
                 cartContent.style.display = 'none';
             }
         }
+
+        function roundToNearestFive(date) {
+            const minutes = Math.ceil(date.getMinutes() / 5) * 5;
+            date.setMinutes(minutes);
+            date.setSeconds(0);
+            return date;
+        }
+
+        function setInitialReservationTime() {
+            const now = new Date();
+            const roundedTime = roundToNearestFive(new Date(now.getTime()));
+
+            const hours = String(roundedTime.getHours()).padStart(2, '0');
+            const minutes = String(roundedTime.getMinutes()).padStart(2, '0');
+            const timeString = `${hours}:${minutes}`;
+
+            document.getElementById('reservationTime').value = timeString;
+        }
+
     </script>
 </body>
 
