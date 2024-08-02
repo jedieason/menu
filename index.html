@@ -607,6 +607,7 @@
             let optionsText = '';
             if (selectedOptions.size) optionsText += '加大';
             if (selectedOptions.spicy) optionsText += optionsText ? '、加辣' : '加辣';
+            if (optionsText) optionsText += '，';
 
             cart.push({ 
                 name: itemName, 
@@ -634,7 +635,7 @@
                         <img src="${item.image}" alt="${item.name}">
                         <div class="cart-item-details">
                             <span class="cart-item-name">${item.name}</span>
-                            <span class="cart-item-quantity">${item.options}，數量：${item.quantity}</span>
+                            <span class="cart-item-quantity">${item.options ? item.options : ''}數量：${item.quantity}</span>
                         </div>
                         <span class="cart-item-price">$${item.price * item.quantity}</span>
                     </div>`;
