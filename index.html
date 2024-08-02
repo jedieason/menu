@@ -304,6 +304,34 @@
             align-items: center;
             justify-content: space-between;
         }
+
+        .time-picker-select {
+            width: 60px;
+            height: 30px;
+            font-size: 16px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            padding: 5px;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .time-picker-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .time-picker-select-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -452,14 +480,10 @@
         <div id="cartItems"></div>
         <div class="reservation-time-container">
             <label for="reservationTime">預訂取餐時間：</label>
-            <div id="timePickerContainer">
-                <select id="hourPicker"></select> :
-                <select id="minutePicker"></select>
-                <select id="ampmPicker">
-                    <option value="AM">AM</option>
-                    <option value="PM">PM</option>
-                </select>
-            </div>            
+            <div class="time-picker-container">
+                <div id="hourPickerContainer" class="time-picker-select-container"></div> :
+                <div id="minutePickerContainer" class="time-picker-select-container"></div>
+            </div>
         </div>
         <div class="total-amount">
             <p id="totalAmount">總金額：$0</p>
@@ -576,46 +600,62 @@
         }
 
         function populateTimePickers() {
-            const hourPicker = document.getElementById('hourPicker');
-            const minutePicker = document.getElementById('minutePicker');
-            const ampmPicker = document.getElementById('ampmPicker');
+            const hourPickerContainer = document.getElementById('hourPickerContainer');
+            const minutePickerContainer = document.getElementById('minutePickerContainer');
 
-            // 清空現有選項
-            hourPicker.innerHTML = '';
-            minutePicker.innerHTML = '';
+            hourPickerContainer.innerHTML = '';
+            minutePickerContainer.innerHTML = '';
 
-            // 填充小時選項
-            for (let i = 1; i <= 12; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.text = i;
-                hourPicker.add(option);
-            }
-
-            // 填充分鐘選項（每5分鐘一個選項）
-            for (let i = 0; i < 60; i += 5) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.text = String(i).padStart(2, '0');
-                minutePicker.add(option);
-            }
-
-            // 設定當前時間
             const now = new Date();
             let currentHour = now.getHours();
-            const currentMinute = Math.ceil(now.getMinutes() / 5) * 5;
-            let ampm = 'AM';
+            let currentMinute = now.getMinutes();
 
-            if (currentHour >= 12) {
-                ampm = 'PM';
-                if (currentHour > 12) currentHour -= 12;
+            const hourSelect = document.createElement('select');
+            hourSelect.className = 'time-picker-select';
+
+            for (let i = 6; i <= 19; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.text = i.toString().padStart(2, '0');
+                hourSelect.add(option);
             }
+            hourPickerContainer.appendChild(hourSelect);
 
-            hourPicker.value = currentHour;
-            minutePicker.value = currentMinute < 60 ? currentMinute : 0;
-            ampmPicker.value = ampm;
+            hourSelect.addEventListener('change', function () {
+                updateMinutePicker(parseInt(hourSelect.value));
+            });
+
+            updateMinutePicker(currentHour >= 6 ? currentHour : 6);
+
+            function updateMinutePicker(selectedHour) {
+                minutePickerContainer.innerHTML = '';
+
+                const minuteSelect = document.createElement('select');
+                minuteSelect.className = 'time-picker-select';
+
+                let startMinute = 0;
+
+                if (selectedHour === currentHour) {
+                    startMinute = Math.ceil(currentMinute / 5) * 5;
+                }
+
+                if (selectedHour === 6 && currentHour === 6 && currentMinute < 30) {
+                    startMinute = 30;
+                }
+
+                if (selectedHour === 6 && currentHour === 6 && currentMinute >= 30) {
+                    startMinute = Math.ceil(currentMinute / 5) * 5;
+                }
+
+                for (let i = startMinute; i < 60; i += 5) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.text = String(i).padStart(2, '0');
+                    minuteSelect.add(option);
+                }
+                minutePickerContainer.appendChild(minuteSelect);
+            }
         }
-
     </script>
 </body>
 
