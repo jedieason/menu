@@ -191,6 +191,112 @@
             width: 100%;
             font-size: 16px;
         }
+
+        .floating-cart {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #8B0000;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 1000;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 75px;
+            height: 30px;
+        }
+
+        .cart-count-box {
+            background-color: white;
+            color: #8B0000;
+            width: 20px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            margin-left: 5px;
+        }
+
+        .close-cart {
+            cursor: pointer;
+            font-size: 24px;
+            float: right;
+        }
+
+        .floating-cart-content {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            max-height: 60%;
+            overflow-y: auto;
+            animation: fadeIn 0.3s;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .cart-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .cart-item-details {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-item-name {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .cart-item-quantity {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .total-amount {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .submit-order-button {
+            padding: 10px 20px;
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
     </style>
 </head>
 
@@ -218,7 +324,7 @@
             </div>
             <button class="add-to-cart-button">加入購物車</button>
         </div>
-    </div> 
+    </div>
     <div class="menu-section">
         <h2>麵類</h2>
         <div class="menu-item">
@@ -303,54 +409,153 @@
             </div>
         </div>
     </div>
-</body>
-<script>
-    const menuItems = document.querySelectorAll('.menu-item');
-    const modal = document.getElementById('menuModal');
-    const closeModal = document.getElementById('closeModal');
-    const itemTitle = document.getElementById('itemTitle');
-    const itemImage = document.getElementById('itemImage');
-    const itemDescription = document.getElementById('itemDescription');
-    const itemPrice = document.getElementById('itemPrice');
-    const quantityInput = document.getElementById('quantityInput');
-    const decreaseQuantity = document.getElementById('decreaseQuantity');
-    const increaseQuantity = document.getElementById('increaseQuantity');
+    <footer style="padding: 20px; text-align: left; border-top: 1px solid #e0e0e0; margin-top: 20px;">
+        <p style="font-size: 14px; margin: 0; font-weight: bold;">
+            <span style="color: #8B0000;">▪️</span> 餐飲業者名稱
+        </p>
+        <p style="font-size: 14px; margin: 0; padding-left: 10px;">
+            醫學院師生餐廳（杏園）
+        </p>
+        <p style="font-size: 14px; margin: 0; font-weight: bold;">
+            <span style="color: #8B0000;">▪️</span> 營業時間及休息日（依廠商實際公告為主）
+        </p>
+        <p style="font-size: 14px; margin: 0; padding-left: 10px;">
+            週一至週五 06:30~19:00
+        </p>
+        <p style="font-size: 14px; margin: 0; padding-left: 10px;">
+            週六至週日公休
+        </p>
+        <p style="font-size: 14px; margin: 0; font-weight: bold;">
+            <span style="color: #8B0000;">▪️</span> 聯絡電話
+        </p>
+        <p style="font-size: 14px; margin: 0; padding-left: 10px;">
+            (02) 2321-1384 或 (02) 2312-3456轉8056
+        </p>
+    </footer>      
+    <div class="floating-cart" id="floatingCart">
+        購物車
+        <div class="cart-count-box">
+            <span id="cartCount">0</span>
+        </div>
+    </div>
 
-    menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            const itemName = item.querySelector('.menu-item-name').innerText;
-            const itemImageSrc = item.querySelector('img').src;
-            const itemPriceText = item.querySelector('.menu-item-price').innerText;
+    <div class="floating-cart-content" id="cartContent">
+        <span class="close-cart">&times;</span>
+        <h3>購物車內容</h3>
+        <div id="cartItems"></div>
+        <div class="total-amount">
+            <p id="totalAmount">總金額：$0</p>
+            <button class="submit-order-button">送出訂單</button>
+        </div>
+    </div>
 
-            itemTitle.innerText = itemName;
-            itemImage.src = itemImageSrc;
-            itemDescription.innerText = `這是${itemName}的描述。`; // 這裡你可以插入實際的描述內容
-            itemPrice.innerText = `價格：${itemPriceText}`;
+    <script>
+        const menuItems = document.querySelectorAll('.menu-item');
+        const modal = document.getElementById('menuModal');
+        const closeModal = document.getElementById('closeModal');
+        const itemTitle = document.getElementById('itemTitle');
+        const itemImage = document.getElementById('itemImage');
+        const itemDescription = document.getElementById('itemDescription');
+        const itemPrice = document.getElementById('itemPrice');
+        const quantityInput = document.getElementById('quantityInput');
+        const decreaseQuantity = document.getElementById('decreaseQuantity');
+        const increaseQuantity = document.getElementById('increaseQuantity');
+        const floatingCart = document.getElementById('floatingCart');
+        const cartContent = document.getElementById('cartContent');
+        const cartCount = document.getElementById('cartCount');
+        const cartItems = document.getElementById('cartItems');
+        const totalAmount = document.getElementById('totalAmount');
+        const submitOrderButton = document.querySelector('.submit-order-button');
+        const closeCart = document.querySelector('.close-cart');
+        let cart = [];
+        let total = 0;
 
-            modal.style.display = "block";
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const itemName = item.querySelector('.menu-item-name').innerText;
+                const itemImageSrc = item.querySelector('img').src;
+                const itemPriceText = item.querySelector('.menu-item-price').innerText;
+
+                itemTitle.innerText = itemName;
+                itemImage.src = itemImageSrc;
+                itemDescription.innerText = `這是${itemName}的描述。`;
+                itemPrice.innerText = `價格：${itemPriceText}`;
+
+                modal.style.display = "block";
+            });
         });
-    });
 
-    closeModal.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-        if (event.target == modal) {
+        closeModal.onclick = function() {
             modal.style.display = "none";
         }
-    }
 
-    decreaseQuantity.addEventListener('click', function() {
-        let currentQuantity = parseInt(quantityInput.value);
-        if (currentQuantity > 1) {
-            quantityInput.value = currentQuantity - 1;
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
         }
-    });
 
-    increaseQuantity.addEventListener('click', function() {
-        let currentQuantity = parseInt(quantityInput.value);
-        quantityInput.value = currentQuantity + 1;
-    });
-</script>
+        decreaseQuantity.addEventListener('click', function() {
+            let currentQuantity = parseInt(quantityInput.value);
+            if (currentQuantity > 1) {
+                quantityInput.value = currentQuantity - 1;
+            }
+        });
+
+        increaseQuantity.addEventListener('click', function() {
+            let currentQuantity = parseInt(quantityInput.value);
+            quantityInput.value = currentQuantity + 1;
+        });
+
+        document.querySelector('.add-to-cart-button').addEventListener('click', function() {
+            const itemName = itemTitle.innerText;
+            const itemImageSrc = itemImage.src;
+            const itemPriceText = itemPrice.innerText.replace('價格：$', '');
+            const quantity = parseInt(quantityInput.value);
+            const itemTotal = quantity * parseInt(itemPriceText);
+
+            cart.push({ name: itemName, price: parseInt(itemPriceText), quantity: quantity, image: itemImageSrc });
+            total += itemTotal;
+            cartCount.innerText = parseInt(cartCount.innerText) + quantity;
+
+            modal.style.display = "none";
+        });
+
+        floatingCart.addEventListener('click', function() {
+            cartContent.style.display = 'block';
+            cartItems.innerHTML = '';
+            cart.forEach(item => {
+                cartItems.innerHTML += `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="cart-item-details">
+                            <span class="cart-item-name">${item.name}</span>
+                            <span class="cart-item-quantity">數量：${item.quantity}</span>
+                        </div>
+                        <span class="cart-item-price">$${item.price * item.quantity}</span>
+                    </div>`;
+            });
+            totalAmount.innerText = `總金額：$${total}`;
+        });
+
+        submitOrderButton.addEventListener('click', function() {
+            alert('訂單已送出！');
+            cart = [];
+            total = 0;
+            cartCount.innerText = '0';
+            cartContent.style.display = 'none';
+        });
+
+        closeCart.addEventListener('click', function() {
+            cartContent.style.display = 'none';
+        });
+
+        window.onclick = function(event) {
+            if (event.target == cartContent) {
+                cartContent.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
 </html>
